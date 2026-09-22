@@ -21,6 +21,7 @@
   var W = 640, H = 480;
   var player = null, ready = false, state = 'init', err = 0, dur = 0;
   var pending = null;   // {id, t} queued before the player is ready
+  var requested = false; // a load/cue was asked for; errors before that are the unlock click's noise
   var ticker = null;
 
   function report() {
@@ -51,6 +52,7 @@
     }
   }
   function onError(e) {
+    if (!requested) return;   // the game's unlock click on an empty player raises a 2
     // 2 invalid id · 5 html5 player error · 100 not found/private · 101/150 embedding disabled ·
     // 153 missing referrer (would mean the surface dropped the Referer header)
     err = e.data | 0;
@@ -60,13 +62,13 @@
   window.tv = {
     load: function (id, t) {
       if (!ready) { pending = { id: id, t: t || 0 }; return; }
-      err = 0;
+      err = 0; requested = true;
       player.loadVideoById({ videoId: id, startSeconds: t || 0 });
     },
     // cue without playing — the sender's pre-flight: resolves to state 'cued' or 'error'
     cue: function (id) {
       if (!ready) return;
-      err = 0;
+      err = 0; requested = true;
       player.cueVideoById({ videoId: id });
     },
     seek:  function (t) { if (ready) player.seekTo(t, true); },
