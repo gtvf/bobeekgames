@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>tv|init|0|0|0</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #000; overflow: hidden; }
+  #player { position: absolute; left: 0; top: 0; width: 640px; height: 480px; }
+</style>
+</head>
+<body>
+<div id="player"></div>
+<script>
+// Podstakannik Rails — the page the in-game TV renders. Loaded by the Steam client's HTML surface
+// (offscreen CEF). The game drives it through window.tv.* (ExecuteJavascript) and reads it back
+// through document.title = "tv|<state>|<time>|<duration>|<error>" (HTML_ChangedTitle_t).
+// States: init, ready, unstarted, ended, playing, paused, buffering, cued, error.
+(function () {
+  'use strict';
+  var W = 640, H = 480;
+  var player = null, ready = false, state = 'init', err = 0, dur = 0;
+  var pending = null;   // {id, t} queued before the player is ready
+  var ticker = null;
+
+  function report() {
+    var t = 0;
+    try { if (ready) t = player.getCurrentTime() || 0; } catch (e) {}
+    document.title = 'tv|' + state + '|' + t.toFixed(2) + '|' + dur.toFixed(2) + '|' + err;
+  }
+  function tick() { if (state === 'playing' || state === 'buffering') report(); }
+  function setState(s) { state = s; report(); }
+
+  function onReady() {
+    ready = true;
+    setState('ready');
+    ticker = setInterval(tick, 1000);
+    if (pending) { var p = pending; pending = null; window.tv.load(p.id, p.t); }
+  }
+  function onStateChange(e) {
+    try { dur = player.getDuration() || 0; } catch (x) { dur = 0; }
+    switch (e.data) {
+      case -1: setState('unstarted'); break;
+      case 0:  // ended → the broadcast loops; the game resyncs position on its own clock
+        setState('ended'); try { player.seekTo(0, true); player.playVideo(); } catch (x) {} break;
+      case 1:  err = 0; setState('playing'); break;
+      case 2:  setState('paused'); break;
+      case 3:  setState('buffering'); break;
+      case 5:  setState('cued'); break;
+      default: report();
+    }
+  }
+  function onError(e) {
+    // 2 invalid id · 5 html5 player error · 100 not found/private · 101/150 embedding disabled ·
+    // 153 missing referrer (would mean the surface dropped the Referer header)
+    err = e.data | 0;
+    setState('error');
+  }
+
+  window.tv = {
+    load: function (id, t) {
+      if (!ready) { pending = { id: id, t: t || 0 }; return; }
+      err = 0;
+      player.loadVideoById({ videoId: id, startSeconds: t || 0 });
+    },
+    // cue without playing — the sender's pre-flight: resolves to state 'cued' or 'error'
+    cue: function (id) {
+      if (!ready) return;
+      err = 0;
+      player.cueVideoById({ videoId: id });
+    },
+    seek:  function (t) { if (ready) player.seekTo(t, true); },
+    play:  function ()  { if (ready) player.playVideo(); },
+    pause: function ()  { if (ready) player.pauseVideo(); },
+    stop:  function ()  { if (ready) { player.stopVideo(); dur = 0; setState('ready'); } },
+    setVolume: function (v) {
+      if (!ready) return;
+      v = Math.max(0, Math.min(100, v | 0));
+      if (v === 0) player.mute(); else { if (player.isMuted()) player.unMute(); player.setVolume(v); }
+    },
+    report: report
+  };
+
+  window.onYouTubeIframeAPIReady = function () {
+    player = new YT.Player('player', {
+      host: 'https://www.youtube-nocookie.com',
+      width: W, height: H,
+      playerVars: {
+        autoplay: 0, controls: 0, disablekb: 1, fs: 0, iv_load_policy: 3, rel: 0,
+        playsinline: 1, enablejsapi: 1, origin: location.origin
+      },
+      events: { onReady: onReady, onStateChange: onStateChange, onError: onError }
+    });
+  };
+
+  var s = document.createElement('script');
+  s.src = 'https://www.youtube.com/iframe_api';
+  s.onerror = function () { err = -1; setState('error'); };   // API script blocked (DNS / region)
+  document.head.appendChild(s);
+  report();
+})();
+</script>
+</body>
+</html>
