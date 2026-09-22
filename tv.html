@@ -21,13 +21,14 @@
   var W = 640, H = 480;
   var player = null, ready = false, state = 'init', err = 0, dur = 0;
   var pending = null;   // {id, t} queued before the player is ready
+  var serial = 0;       // Chromium drops a title change to an identical string; the counter keeps every report distinct
   var requested = false; // a load/cue was asked for; errors before that are the unlock click's noise
   var ticker = null;
 
   function report() {
     var t = 0;
     try { if (ready) t = player.getCurrentTime() || 0; } catch (e) {}
-    document.title = 'tv|' + state + '|' + t.toFixed(2) + '|' + dur.toFixed(2) + '|' + err;
+    document.title = 'tv|' + state + '|' + t.toFixed(2) + '|' + dur.toFixed(2) + '|' + err + '|' + (serial++);
   }
   function tick() { if (state === 'playing' || state === 'buffering') report(); }
   function setState(s) { state = s; report(); }
