@@ -75,7 +75,7 @@
     seek:  function (t) { if (ready) player.seekTo(t, true); },
     play:  function ()  { if (ready) player.playVideo(); },
     pause: function ()  { if (ready) player.pauseVideo(); },
-    stop:  function ()  { if (ready) { player.stopVideo(); dur = 0; setState('ready'); } },
+    stop:  function ()  { if (ready) { player.stopVideo(); dur = 0; err = 0; setState('ready'); } },
     setVolume: function (v) {
       if (!ready) return;
       v = Math.max(0, Math.min(100, v | 0));
