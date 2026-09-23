@@ -14,7 +14,7 @@
 <script>
 // Podstakannik Rails — the page the in-game TV renders. Loaded by the Steam client's HTML surface
 // (offscreen CEF). The game drives it through window.tv.* (ExecuteJavascript) and reads it back
-// through document.title = "tv|<state>|<time>|<duration>|<error>" (HTML_ChangedTitle_t).
+// through document.title = "tv|<state>|<time>|<duration>|<error>|<serial>" (HTML_ChangedTitle_t).
 // States: init, ready, unstarted, ended, playing, paused, buffering, cued, error.
 (function () {
   'use strict';
@@ -66,7 +66,8 @@
       err = 0; requested = true;
       player.loadVideoById({ videoId: id, startSeconds: t || 0 });
     },
-    // cue without playing — the sender's pre-flight: resolves to state 'cued' or 'error'
+    // cue without playing — unused since 2026-09-23 (the pre-flight now PLAYS muted: YouTube reports
+    // "embedding disabled" only on play); kept so builds from before that still work
     cue: function (id) {
       if (!ready) return;
       err = 0; requested = true;
