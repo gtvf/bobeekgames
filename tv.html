@@ -14,7 +14,9 @@
 <script>
 // Podstakannik Rails — the page the in-game TV renders. Loaded by the Steam client's HTML surface
 // (offscreen CEF). The game drives it through window.tv.* (ExecuteJavascript) and reads it back
-// through document.title = "tv|<state>|<time>|<duration>|<error>|<serial>" (HTML_ChangedTitle_t).
+// through document.title = "tv|<state>|<time>|<duration>|<error>|<serial>|<live>|<videoId>"
+// (HTML_ChangedTitle_t). <live> is the player's own getVideoData().isLive (1/0) and <videoId> the id it
+// holds, so the game can tell a report about the video it just loaded from a stale one about the last.
 // States: init, ready, unstarted, ended, playing, paused, buffering, cued, error.
 (function () {
   'use strict';
@@ -26,9 +28,16 @@
   var ticker = null;
 
   function report() {
-    var t = 0;
+    var t = 0, live = 0, vid = '';
     try { if (ready) t = player.getCurrentTime() || 0; } catch (e) {}
-    document.title = 'tv|' + state + '|' + t.toFixed(2) + '|' + dur.toFixed(2) + '|' + err + '|' + (serial++);
+    try {
+      if (ready) {
+        var d = player.getVideoData();
+        if (d) { live = d.isLive ? 1 : 0; vid = d.video_id || ''; }
+      }
+    } catch (e) {}
+    document.title = 'tv|' + state + '|' + t.toFixed(2) + '|' + dur.toFixed(2) + '|' + err + '|' + (serial++) +
+      '|' + live + '|' + vid;
   }
   function tick() { if (state === 'playing' || state === 'buffering') report(); }
   function setState(s) { state = s; report(); }
