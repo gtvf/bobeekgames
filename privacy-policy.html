@@ -21,17 +21,19 @@
 <body>
 
 <h1>Privacy Policy</h1>
-<p class="updated">Podstakannik Rails — last updated 23 September 2026</p>
+<p class="updated">Podstakannik Rails — last updated 2 October 2026</p>
 
 <p>
   Podstakannik Rails is developed and published by Bobeek Games ("we", "us"). This policy explains
   what happens to your data when you play the game. It is short because the game collects very little.
 </p>
 
-<h2>We run no servers and keep no database</h2>
+<h2>We run no game servers</h2>
 <p>
   Multiplayer sessions are hosted by one of the players and connect through Steam. We do not operate
-  game servers, we do not receive your data, and we do not store anything about you on our side.
+  game servers and we do not store anything about you on our side. The only data that reaches us is
+  the diagnostics described below — a technical record of each session, plus crash and error
+  reports — which Unity stores on our behalf.
 </p>
 
 <h2>What is processed while you play</h2>
@@ -66,11 +68,25 @@
     loaded by the Steam client's built-in browser directly from YouTube, as if you had opened the page
     yourself. We receive nothing; the game keeps only the current video ID for the ride.
   </li>
+  <li>
+    <strong>Diagnostics (session records, crash and error reports).</strong> The game uses Unity
+    Diagnostics, a Unity service. Each time you play, it sends Unity a technical record of the session:
+    your device model, operating system, CPU and graphics card, the game and Unity versions, how long
+    the session lasted and how much memory it used, together with an ID unique to your installation of
+    the game; like any online service, Unity also sees your IP address. If the game crashes or hits an
+    error, it also sends a report of where in the game's code this happened and the last few lines of
+    the game's log. Those lines can include your Steam display name, the Steam IDs of you and other
+    players, lobby IDs, file paths on your computer (which can contain your Windows user name) and the
+    names of music files in the game's music folder. We read these reports in Unity's dashboard only to
+    find and fix bugs, relying on our legitimate interest in keeping the game stable. Unity keeps them
+    for 90 days. There is no switch for this inside the game.
+  </li>
 </ul>
 
 <h2>What we do not do</h2>
 <ul>
-  <li>No analytics, telemetry, or crash reporting.</li>
+  <li>No gameplay analytics: we do not track what you do in the game. The diagnostics above hold only
+    technical data and, after an error, the last few lines of the game's log.</li>
   <li>No advertising and no advertising identifiers.</li>
   <li>No accounts to create and no passwords — the game uses your existing Steam session.</li>
   <li>No payment information reaches us; all purchases are handled by Steam.</li>
@@ -88,8 +104,9 @@
     <a href="https://store.steampowered.com/privacy_agreement/">Steam Privacy Policy</a>.
   </li>
   <li>
-    <strong>Unity Technologies (Vivox / Unity Gaming Services)</strong> — voice chat. Unity processes
-    the voice stream and may collect technical identifiers needed to operate the service. See the
+    <strong>Unity Technologies (Vivox, Unity Diagnostics)</strong> — voice chat and diagnostics. Unity
+    processes the voice stream and the diagnostics and may collect technical identifiers needed to
+    operate these services. See the
     <a href="https://unity.com/legal/game-player-and-app-user-privacy-policy">Unity Game Player and App User Privacy Policy</a>.
   </li>
   <li>
@@ -114,11 +131,12 @@
 
 <h2>Your rights</h2>
 <p>
-  Since we hold no data about you, there is nothing on our side to export or delete. Requests
-  concerning your Steam account should go to Valve, requests concerning voice service data to
-  Unity, and requests concerning what the compartment TV loads to GitHub or Google, using the policies
-  linked above. If you are unsure where to ask, write to us and we will
-  point you in the right direction.
+  We hold no data about you on our own side. Diagnostics are stored for us by Unity and deleted after
+  90 days. If you want them deleted sooner, write to us: the game does not show which reports come
+  from your computer, so we will delete the stored reports of all players. Requests concerning your
+  Steam account should go to Valve, requests concerning voice service data to Unity, and requests
+  concerning what the compartment TV loads to GitHub or Google, using the policies linked above. If
+  you are unsure where to ask, write to us and we will point you in the right direction.
 </p>
 
 <h2>Changes</h2>
